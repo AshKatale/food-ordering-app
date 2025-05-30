@@ -1,18 +1,22 @@
+import { useRouter } from "expo-router";
 import React from "react";
 import {
-    Dimensions,
-    Image,
-    StatusBar,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View
+  Dimensions,
+  Image,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
 
 export default function Entry() {
+
+  const router = useRouter();
+
   return (
     <SafeAreaView >
         <StatusBar
@@ -31,7 +35,7 @@ export default function Entry() {
           <View style={{
             marginBottom: '40%'
           }}>
-            <TouchableOpacity style={styles.button}>
+            <TouchableOpacity onPress={()=>router.push('/home')} style={styles.button}>
               <Text style={styles.buttonText}>Get Started</Text>
             </TouchableOpacity>
           </View>

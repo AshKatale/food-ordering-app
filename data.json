@@ -1,0 +1,84 @@
+
+ {
+    "item1": {
+      "id": 1,
+      "name": "Spicy Noodles",
+      "price": 1500,
+      "image": "https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=300",
+      "description": "Rich and incredibly tasty rice dish, made with reduced tomatoes, bell peppers, chilli peppers, onions, herbs and seasoning.",
+      "rating": 4.5,
+      "reviews": 89,
+      "calories": 248
+    },
+    "item2": {
+      "id": 2,
+      "name": "Shrimp Pasta",
+      "price": 1800,
+      "image": "https://images.unsplash.com/photo-1621996346565-e3dbc353d2e5?w=300",
+      "description": "Fresh shrimp pasta with creamy sauce and herbs",
+      "rating": 4.7,
+      "reviews": 156,
+      "calories": 380
+    },
+    "item3": {
+      "id": 3,
+      "name": "Vegetable Curry",
+      "price": 1200,
+      "image": "https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=300",
+      "description": "Aromatic vegetable curry with rice",
+      "rating": 4.3,
+      "reviews": 67,
+      "calories": 350
+    },
+    "item4": {
+      "id": 4,
+      "name": "Mixed Salad",
+      "price": 1500,
+      "image": "https://images.unsplash.com/photo-1546793665-c74683f339c1?w=300",
+      "description": "Fresh mixed salad with seasonal vegetables",
+      "rating": 4.2,
+      "reviews": 45,
+      "calories": 180
+    },
+    "item5": {
+      "id": 5,
+      "name": "Chicken Pasta Salad",
+      "price": 1500,
+      "image": "https://images.unsplash.com/photo-1565299585323-38174c13a9db?w=300",
+      "description": "Grilled chicken with pasta and fresh vegetables",
+      "rating": 4.6,
+      "reviews": 98,
+      "calories": 450
+    },
+    "item6": {
+      "id": 6,
+      "name": "Beef Salad",
+      "price": 1200,
+      "image": "https://images.unsplash.com/photo-1544982503-9f984c14501a?w=300",
+      "description": "Tender beef strips with mixed greens",
+      "rating": 4.4,
+      "reviews": 73,
+      "calories": 320
+    },
+    "item7": {
+      "id": 7,
+      "name": "Beef Salad",
+      "price": 1200,
+      "image": "https://images.unsplash.com/photo-1544982503-9f984c14501a?w=300",
+      "description": "Tender beef strips with mixed greens",
+      "rating": 4.4,
+      "reviews": 73,
+      "calories": 320
+    },
+    "item8": {
+      "id": 8,
+      "name": "Beef Salad",
+      "price": 1200,
+      "image": "https://images.unsplash.com/photo-1544982503-9f984c14501a?w=300",
+      "description": "Tender beef strips with mixed greens",
+      "rating": 4.4,
+      "reviews": 73,
+      "calories": 320
+    }
+  }
+
