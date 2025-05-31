@@ -34,7 +34,7 @@ const OrderSummaryScreen = () => {
   }, [address]);
 
   const formatPrice = (price) => {
-    return `₦${price.toLocaleString()}`;
+    return `₹${price.toLocaleString()}`;
   };
 
   const calculateItemTotal = (price, quantity) => {
@@ -48,7 +48,7 @@ const OrderSummaryScreen = () => {
       [
         { text: "Cancel", style: "cancel" },
         { 
-          text: "Place Order", 
+          text: "Proceed", 
           style: "default",
           onPress: () => {
             // Here you would typically make an API call to place the order
@@ -158,7 +158,7 @@ const OrderSummaryScreen = () => {
           style={styles.placeOrderButton}
           onPress={handlePlaceOrder}
         >
-          <Text style={styles.placeOrderText}>Place Order</Text>
+          <Text style={styles.placeOrderText}>Proceed</Text>
         </TouchableOpacity>
       </View>
     </View>

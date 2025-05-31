@@ -117,7 +117,7 @@ export const MenuListScreen = ({ initialCategory }) => {
   };
 
   const formatPrice = (price) => {
-    return `₦${price.toLocaleString()}`;
+    return `₹${price.toLocaleString()}`;
   };
 
   const navigateToDetails = (item) => {
@@ -290,7 +290,7 @@ export const ItemDetailsScreen = ({ route }) => {
   };
 
   const formatPrice = (price) => {
-    return `₦${price.toLocaleString()}`;
+    return `₹${price.toLocaleString()}`;
   };
 
   const renderStars = (rating) => {

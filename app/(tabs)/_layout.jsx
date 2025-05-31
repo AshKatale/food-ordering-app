@@ -71,7 +71,7 @@ export default function _layout() {
               color={color} 
             />
           ),
-          tabBarBadge: 2, // Shows cart count badge
+ // Shows cart count badge
         }} 
         name='cart'
       />

@@ -21,24 +21,24 @@ export const HomeScreen = () => {
     {
       id: 1,
       name: 'Spicy Noodles',
-      price: 1500,
+      price: 150,
       image: 'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=300',
       rating: 4.5,
       reviews: 89
     },
     {
       id: 2,
-      name: 'Shrimp Pasta',
-      price: 1800,
-      image: 'https://images.unsplash.com/photo-1621996346565-e3dbc353d2e5?w=300',
+      name: 'Paneer Butter Masalq',
+      price: 180,
+      image: 'https://images.pexels.com/photos/30858402/pexels-photo-30858402/free-photo-of-delicious-paneer-tikka-masala-dish-close-up.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500',
       rating: 4.7,
       reviews: 156
     },
     {
       id: 3,
       name: 'Vegetable Curry',
-      price: 1200,
-      image: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=300',
+      price: 120,
+      image: 'https://img.freepik.com/premium-photo/mix-vegetable-curry-indian-main-course-recipe-contains-carrots-cauliflower-green-peas-beans-baby-corn-capsicum-paneer-cottage-cheese-with-traditional-masala-curry_466689-35413.jpg',
       rating: 4.3,
       reviews: 67
     }
@@ -111,10 +111,10 @@ export const HomeScreen = () => {
         <View style={styles.categoriesSection}>
           <Text style={styles.sectionTitle}>Categories</Text>
           <View style={styles.categoriesGrid}>
-            {renderCategoryCard('Meals', 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=300', 12)}
-            {renderCategoryCard('Sides', 'https://images.unsplash.com/photo-1576866209836-0fbf94f492f9?w=300', 2)}
-            {renderCategoryCard('Snacks', 'https://images.unsplash.com/photo-1604908177522-f6f032a2d7f1?w=300', 4)}
-            {renderCategoryCard('Drinks', 'https://images.unsplash.com/photo-1579033460371-c0adf99dd412?w=300', 6)}
+            {renderCategoryCard('Meals', 'https://media.cntraveler.com/photos/66668a4b352fb7400e650b24/16:9/w_1920,c_limit/Belly%20of%20the%20beast%20menu%20August%202023%20-%20Claire%20Gunn%20Photo.jpg', 12)}
+            {renderCategoryCard('Sides', 'https://foodess.com/wp-content/uploads/2023/02/Butter-Naan-3.jpg', 2)}
+            {renderCategoryCard('Snacks', 'https://media-assets.swiggy.com/swiggy/image/upload/f_auto,q_auto,fl_lossy/baki0qdsmcneqypomauv', 4)}
+            {renderCategoryCard('Drinks', 'https://images.immediate.co.uk/production/volatile/sites/30/2023/10/GF01115BackPagePSOCocktailspreview-829355e.jpg?quality=90&resize=556,505', 6)}
           </View>
         </View>
 

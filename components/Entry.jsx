@@ -32,6 +32,7 @@ export default function Entry() {
         <View style={styles.overlay}>
           <Text style={styles.overlayText}>Foodio</Text>
           <Text style={styles.subText}>Let us help you discover the best food</Text>
+          <Text style={styles.developerText}>Made by Ashitosh Katale</Text>
           <View style={{
             marginBottom: '40%'
           }}>
@@ -47,7 +48,7 @@ export default function Entry() {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "#000", // Fallback background
+    backgroundColor: "#000", 
   },
   imageContainer: {
 
@@ -98,10 +99,16 @@ const styles = StyleSheet.create({
     textShadowRadius: 3,
   },
   button: {
-    backgroundColor: "rgba(237, 106, 12, 0.8)", // Using rgba instead of opacity
+    backgroundColor: "rgba(237, 106, 12, 0.8)",
     padding: 12,
     paddingInline: 25,
     borderRadius: 99,
     marginTop: "15%",
   },
+  developerText : {
+    fontFamily : 'outfit-bold',
+    color : 'orange',
+    fontSize : 20,
+    textShadowColor: "rgba(54, 23, 9, 1)"
+  }
 });
