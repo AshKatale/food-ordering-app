@@ -2,13 +2,13 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
-    Alert,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View
+  Alert,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
 } from 'react-native';
 
 const AddressScreen = () => {
@@ -48,8 +48,11 @@ const AddressScreen = () => {
       return;
     }
 
-    // Navigate to payment screen
-    router.push('/checkout/payment');
+    // Navigate to order summary screen with address data
+    router.push({
+      pathname: '/checkout/summary',
+      params: { address: JSON.stringify(formData) }
+    });
   };
 
   return (

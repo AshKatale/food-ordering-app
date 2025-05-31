@@ -1,140 +1,110 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import { collection, getDocs, query, where } from 'firebase/firestore';
+import React, { useEffect, useState } from 'react';
 import {
-    Dimensions,
-    Image,
-    SafeAreaView,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View
+  ActivityIndicator,
+  Alert,
+  Dimensions,
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { db } from '../configs/FirebaseConfig'; // Adjust path as needed
+import { useCart } from '../context/CartContext';
+
 const { width } = Dimensions.get('window');
 
-// Sample data
-const menuData = {
-  Meals: [
-    {
-      id: 1,
-      name: 'Spicy Noodles',
-      price: 1500,
-      image: 'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=300',
-      description: 'Rich and incredibly tasty rice dish, made with reduced tomatoes, bell peppers, chilli peppers, onions, herbs and seasoning.',
-      rating: 4.5,
-      reviews: 89,
-      calories: 248
-    },
-    {
-      id: 2,
-      name: 'Shrimp Pasta',
-      price: 1800,
-      image: 'https://images.unsplash.com/photo-1621996346565-e3dbc353d2e5?w=300',
-      description: 'Fresh shrimp pasta with creamy sauce and herbs',
-      rating: 4.7,
-      reviews: 156,
-      calories: 380
-    },
-    {
-      id: 3,
-      name: 'Vegetable Curry',
-      price: 1200,
-      image: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=300',
-      description: 'Aromatic vegetable curry with rice',
-      rating: 4.3,
-      reviews: 67,
-      calories: 350
-    },
-    {
-      id: 4,
-      name: 'Mixed Salad',
-      price: 1500,
-      image: 'https://images.unsplash.com/photo-1546793665-c74683f339c1?w=300',
-      description: 'Fresh mixed salad with seasonal vegetables',
-      rating: 4.2,
-      reviews: 45,
-      calories: 180
-    },
-    {
-      id: 5,
-      name: 'Chicken Pasta Salad',
-      price: 1500,
-      image: 'https://images.unsplash.com/photo-1565299585323-38174c13a9db?w=300',
-      description: 'Grilled chicken with pasta and fresh vegetables',
-      rating: 4.6,
-      reviews: 98,
-      calories: 450
-    },
-    {
-      id: 6,
-      name: 'Beef Salad',
-      price: 1200,
-      image: 'https://images.unsplash.com/photo-1544982503-9f984c14501a?w=300',
-      description: 'Tender beef strips with mixed greens',
-      rating: 4.4,
-      reviews: 73,
-      calories: 320
-    },
-    {
-        id: 7,
-        name: 'Beef Salad',
-        price: 1200,
-        image: 'https://images.unsplash.com/photo-1544982503-9f984c14501a?w=300',
-        description: 'Tender beef strips with mixed greens',
-        rating: 4.4,
-        reviews: 73,
-        calories: 320
-      },
-      {
-        id: 8,
-        name: 'Beef Salad',
-        price: 1200,
-        image: 'https://images.unsplash.com/photo-1544982503-9f984c14501a?w=300',
-        description: 'Tender beef strips with mixed greens',
-        rating: 4.4,
-        reviews: 73,
-        calories: 320
-      }
-  ],
-  Sides: [
-    {
-      id: 7,
-      name: 'Fried Plantain',
-      price: 300,
-      image: 'https://images.unsplash.com/photo-1586985289906-406988974504?w=300'
-    },
-    {
-      id: 8,
-      name: 'Coleslaw',
-      price: 800,
-      image: 'https://images.unsplash.com/photo-1572490122747-3968b75cc699?w=300'
-    },
-    {
-      id: 9,
-      name: 'Fried Chicken',
-      price: 900,
-      image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=300'
-    }
-  ],
-  Snacks: [
-    {
-      id: 10,
-      name: 'Spring Rolls',
-      price: 600,
-      image: 'https://images.unsplash.com/photo-1544982503-9f984c14501a?w=300'
-    }
-  ]
-};
-
 // Menu List Component
-export const MenuListScreen = () => {
+export const MenuListScreen = ({ initialCategory }) => {
   const router = useRouter();
-  const [selectedCategory, setSelectedCategory] = useState('Meals');
+  const { cartCount, addToCart } = useCart();
+  const [selectedCategory, setSelectedCategory] = useState(initialCategory || 'Meals');
   const [favorites, setFavorites] = useState(new Set());
-  const [cartCount, setCartCount] = useState(2);
+  const [menuData, setMenuData] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [categories, setCategories] = useState(['Meals', 'Sides', 'Snacks', 'Drinks']);
 
-  const categories = ['Meals', 'Sides', 'Snacks'];
+  const fetchMenuData = async () => {
+    try {
+      console.log('Starting to fetch menu data...');
+      setLoading(true);
+      
+      // Fetch all menu items
+      const menuItemsRef = collection(db, 'menu-items');
+      console.log('Fetching menu items from collection...');
+      const menuSnapshot = await getDocs(menuItemsRef);
+      
+      console.log('Menu items fetched:', menuSnapshot.size, 'items found');
+      
+      // Group items by category
+      const groupedData = {};
+      
+      // Initialize default categories if none exist
+      const defaultCategories = ['Meals', 'Sides', 'Snacks', 'Drinks'];
+      
+      menuSnapshot.forEach((doc) => {
+        const item = { id: doc.id, ...doc.data() };
+        // console.log('Processing item:', item);
+        
+        // Assign a default category if none exists
+        let category = item.category || 'Meals';
+        
+        // Ensure the category exists in groupedData
+        if (!groupedData[category]) {
+          groupedData[category] = [];
+        }
+        groupedData[category].push(item);
+      });
+
+      // console.log('Grouped data:', groupedData);
+
+      // Get unique categories from the data
+      const availableCategories = Object.keys(groupedData).sort();
+      // console.log('Available categories:', availableCategories);
+
+      // Use available categories from data, fallback to defaults if none found
+      const categoryNames = availableCategories.length > 0 ? availableCategories : defaultCategories;
+
+      // console.log('Final category names:', categoryNames);
+      // console.log('Final grouped data:', groupedData);
+
+      setMenuData(groupedData);
+      setCategories(categoryNames);
+      
+      // Set first category as selected if available
+      if (categoryNames.length > 0) {
+        setSelectedCategory(categoryNames[0]);
+      }
+      
+    } catch (error) {
+      console.error('Error fetching menu data:', error);
+      console.error('Error details:', {
+        message: error.message,
+        code: error.code,
+        stack: error.stack
+      });
+      Alert.alert('Error', 'Failed to load menu items. Please try again.');
+    } finally {
+      setLoading(false);
+      console.log('Fetch operation completed. Loading state:', false);
+    }
+  };
+
+  useEffect(() => {
+    fetchMenuData();
+  }, []);
+
+  // Update selected category when initialCategory changes
+  useEffect(() => {
+    if (initialCategory && categories.includes(initialCategory)) {
+      setSelectedCategory(initialCategory);
+    }
+  }, [initialCategory, categories]);
 
   const toggleFavorite = (itemId) => {
     const newFavorites = new Set(favorites);
@@ -151,32 +121,52 @@ export const MenuListScreen = () => {
   };
 
   const navigateToDetails = (item) => {
-    router.push({
-      pathname: '/item/[id]',
-      params: { item: JSON.stringify(item) }
-    });
+    try {
+      // Ensure we're passing a clean item object without circular references
+      const cleanItem = {
+        id: item.id,
+        name: item.name,
+        description: item.description,
+        price: item.price,
+        image: item.image,
+        category: item.category,
+        calories: item.calories,
+        rating: item.rating,
+        reviews: item.reviews
+      };
+      
+      router.push({
+        pathname: '/item/[id]',
+        params: { item: JSON.stringify(cleanItem) }
+      });
+    } catch (error) {
+      console.error('Error navigating to details:', error);
+      Alert.alert('Error', 'Could not open item details');
+    }
   };
 
+  if (loading) {
+    return (
+      <SafeAreaView style={styles.container} edges={['top']}>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#FF6B35" />
+          <Text style={styles.loadingText}>Loading menu...</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top']}>
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.headerLeft}>
-          <TouchableOpacity onPress={() => router.push('/home')}>
+          <TouchableOpacity onPress={() => router.back()}>
             <Ionicons name="arrow-back" size={24} color="#000" />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Our Menu</Text>
         </View>
-        <View style={styles.cartIcon}>
-          <TouchableOpacity>
-            <Ionicons name="cart-outline" size={24} color="#000" />
-            {cartCount > 0 && (
-              <View style={styles.cartBadge}>
-                <Text style={styles.cartBadgeText}>{cartCount}</Text>
-              </View>
-            )}
-          </TouchableOpacity>
-        </View>
+        <CartIcon />
       </View>
 
       {/* Category Tabs */}
@@ -206,57 +196,39 @@ export const MenuListScreen = () => {
       {/* Menu Items Grid */}
       <ScrollView style={styles.menuContainer} showsVerticalScrollIndicator={false}>
         <View style={styles.menuGrid}>
-          {menuData[selectedCategory].map((item) => (
-            <TouchableOpacity
-              key={item.id}
-              style={styles.menuItem}
-              onPress={() => navigateToDetails(item)}
-            >
-              <View style={styles.imageContainer}>
-                <Image source={{ uri: item.image }} style={styles.itemImage} />
-                <TouchableOpacity
-                  style={styles.favoriteButton}
-                  onPress={() => toggleFavorite(item.id)}
-                >
-                  <Ionicons
-                    name={favorites.has(item.id) ? "heart" : "heart-outline"}
-                    size={20}
-                    color={favorites.has(item.id) ? "#FF6B6B" : "#999"}
-                  />
-                </TouchableOpacity>
-              </View>
-              <View style={styles.itemInfo}>
-                <Text style={styles.itemName}>{item.name}</Text>
-                <Text style={styles.itemPrice}>{formatPrice(item.price)}</Text>
-              </View>
-            </TouchableOpacity>
-          ))}
+          {menuData[selectedCategory] && menuData[selectedCategory].length > 0 ? (
+            menuData[selectedCategory].map((item) => (
+              <TouchableOpacity
+                key={item.id}
+                style={styles.menuItem}
+                onPress={() => navigateToDetails(item)}
+              >
+                <View style={styles.imageContainer}>
+                  <Image source={{ uri: item.image }} style={styles.itemImage} />
+                  <TouchableOpacity
+                    style={styles.favoriteButton}
+                    onPress={() => toggleFavorite(item.id)}
+                  >
+                    <Ionicons
+                      name={favorites.has(item.id) ? "heart" : "heart-outline"}
+                      size={20}
+                      color={favorites.has(item.id) ? "#FF6B6B" : "#999"}
+                    />
+                  </TouchableOpacity>
+                </View>
+                <View style={styles.itemInfo}>
+                  <Text style={styles.itemName}>{item.name}</Text>
+                  <Text style={styles.itemPrice}>{formatPrice(item.price)}</Text>
+                </View>
+              </TouchableOpacity>
+            ))
+          ) : (
+            <View style={styles.emptyContainer}>
+              <Text style={styles.emptyText}>No items available in this category</Text>
+            </View>
+          )}
         </View>
       </ScrollView>
-
-      {/* Bottom Navigation
-      <View style={styles.bottomNav}>
-        <TouchableOpacity style={styles.navItem}>
-          <Ionicons name="chatbubble-outline" size={24} color="#999" />
-          <Text style={styles.navText}>Live Chat</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem}>
-          <Ionicons name="person-outline" size={24} color="#999" />
-          <Text style={styles.navText}>Profile</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem}>
-          <Ionicons name="home" size={24} color="#FF6B35" />
-          <Text style={[styles.navText, { color: '#FF6B35' }]}>Home</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem}>
-          <Ionicons name="restaurant-outline" size={24} color="#999" />
-          <Text style={styles.navText}>Menu</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem}>
-          <Ionicons name="heart-outline" size={24} color="#999" />
-          <Text style={styles.navText}>Favorites</Text>
-        </TouchableOpacity>
-      </View> */}
     </SafeAreaView>
   );
 };
@@ -264,19 +236,61 @@ export const MenuListScreen = () => {
 // Item Details Component
 export const ItemDetailsScreen = ({ route }) => {
   const router = useRouter();
-  const { item } = route.params;
+  const { addToCart: addItemToCart } = useCart();
+  const [item, setItem] = useState(null);
   const [quantity, setQuantity] = useState(1);
   const [isFavorite, setIsFavorite] = useState(false);
-  const [cartCount, setCartCount] = useState(2);
+  const [recommendedSides, setRecommendedSides] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const recommendedSides = [
-    { id: 7, name: 'Fried plantain', price: 300, image: 'https://images.unsplash.com/photo-1586985289906-406988974504?w=150' },
-    { id: 8, name: 'Coleslaw', price: 800, image: 'https://images.unsplash.com/photo-1572490122747-3968b75cc699?w=150' },
-    { id: 9, name: 'Fried Chicken', price: 900, image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=150' }
-  ];
+  useEffect(() => {
+    const loadItemData = () => {
+      try {
+        if (route?.params?.item) {
+          const itemData = typeof route.params.item === 'string' 
+            ? JSON.parse(route.params.item)
+            : route.params.item;
+            
+          // console.log('Loading item data:', itemData);
+          setItem(itemData);
+          fetchRecommendedSides();
+        } else {
+          console.error('No item data provided');
+          Alert.alert('Error', 'Item data not found');
+          router.back();
+        }
+      } catch (error) {
+        console.error('Error loading item data:', error);
+        Alert.alert('Error', 'Failed to load item details');
+        router.back();
+      }
+    };
+
+    loadItemData();
+  }, [route?.params?.item]);
+
+  const fetchRecommendedSides = async () => {
+    try {
+      const sidesRef = collection(db, 'menuItems');
+      const sidesQuery = query(sidesRef, where('category', '==', 'Sides'));
+      const sidesSnapshot = await getDocs(sidesQuery);
+      
+      const sides = [];
+      sidesSnapshot.forEach((doc) => {
+        sides.push({ id: doc.id, ...doc.data() });
+      });
+      
+      // Take first 3 sides as recommended
+      setRecommendedSides(sides.slice(0, 3));
+    } catch (error) {
+      console.error('Error fetching recommended sides:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const formatPrice = (price) => {
-    return `₹${price.toLocaleString()}`;
+    return `₦${price.toLocaleString()}`;
   };
 
   const renderStars = (rating) => {
@@ -294,29 +308,31 @@ export const ItemDetailsScreen = ({ route }) => {
   const increaseQuantity = () => setQuantity(prev => prev + 1);
   const decreaseQuantity = () => setQuantity(prev => prev > 1 ? prev - 1 : 1);
 
-  const addToCart = () => {
-    // Add to cart logic here
-    setCartCount(prev => prev + quantity);
+  const handleAddToCart = () => {
+    addItemToCart(item, quantity);
+    Alert.alert('Success', `${item.name} added to cart!`);
     router.back();
   };
 
+  if (loading || !item) {
+    return (
+      <SafeAreaView style={styles.container} edges={['top']}>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#FF6B35" />
+          <Text style={styles.loadingText}>Loading item details...</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top']}>
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()}>
           <Ionicons name="arrow-back" size={24} color="#000" />
         </TouchableOpacity>
-        <View style={styles.cartIcon}>
-          <TouchableOpacity>
-            <Ionicons name="cart-outline" size={24} color="#000" />
-            {cartCount > 0 && (
-              <View style={styles.cartBadge}>
-                <Text style={styles.cartBadgeText}>{cartCount}</Text>
-              </View>
-            )}
-          </TouchableOpacity>
-        </View>
+        <CartIcon />
       </View>
 
       <ScrollView style={styles.detailsContainer} showsVerticalScrollIndicator={false}>
@@ -338,7 +354,7 @@ export const ItemDetailsScreen = ({ route }) => {
         {/* Item Info */}
         <View style={styles.detailInfo}>
           <View style={styles.titleRow}>
-            <Text style={styles.detailTitle}>Jollof Rice</Text>
+            <Text style={styles.detailTitle}>{item.name}</Text>
             <View style={styles.quantityContainer}>
               <TouchableOpacity onPress={decreaseQuantity} style={styles.quantityButton}>
                 <Text style={styles.quantityButtonText}>-</Text>
@@ -350,12 +366,14 @@ export const ItemDetailsScreen = ({ route }) => {
             </View>
           </View>
 
-          <View style={styles.ratingRow}>
-            <View style={styles.starsContainer}>
-              {renderStars(item.rating)}
+          {item.rating && (
+            <View style={styles.ratingRow}>
+              <View style={styles.starsContainer}>
+                {renderStars(item.rating)}
+              </View>
+              <Text style={styles.reviewText}>({item.reviews || 0} ratings)</Text>
             </View>
-            <Text style={styles.reviewText}>({item.reviews} ratings)</Text>
-          </View>
+          )}
 
           <Text style={styles.detailPrice}>{formatPrice(item.price)}</Text>
 
@@ -364,26 +382,30 @@ export const ItemDetailsScreen = ({ route }) => {
             <Text style={styles.sectionTitle}>Description</Text>
             <Text style={styles.descriptionText}>
               {item.description}
-              <Text style={styles.caloriesText}> (Each serving contains {item.calories} calories)</Text>
+              {item.calories && (
+                <Text style={styles.caloriesText}> (Each serving contains {item.calories} calories)</Text>
+              )}
             </Text>
           </View>
 
           {/* Recommended Sides */}
-          <View style={styles.recommendedSection}>
-            <Text style={styles.sectionTitle}>Recommended sides</Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.sidesContainer}>
-              {recommendedSides.map((side) => (
-                <View key={side.id} style={styles.sideItem}>
-                  <Image source={{ uri: side.image }} style={styles.sideImage} />
-                  <Text style={styles.sideName}>{side.name}</Text>
-                  <Text style={styles.sidePrice}>{formatPrice(side.price)}</Text>
-                  <TouchableOpacity style={styles.sideAddButton}>
-                    <Ionicons name="add" size={16} color="#FF6B35" />
-                  </TouchableOpacity>
-                </View>
-              ))}
-            </ScrollView>
-          </View>
+          {recommendedSides.length > 0 && (
+            <View style={styles.recommendedSection}>
+              <Text style={styles.sectionTitle}>Recommended sides</Text>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.sidesContainer}>
+                {recommendedSides.map((side) => (
+                  <View key={side.id} style={styles.sideItem}>
+                    <Image source={{ uri: side.image }} style={styles.sideImage} />
+                    <Text style={styles.sideName}>{side.name}</Text>
+                    <Text style={styles.sidePrice}>{formatPrice(side.price)}</Text>
+                    <TouchableOpacity style={styles.sideAddButton}>
+                      <Ionicons name="add" size={16} color="#FF6B35" />
+                    </TouchableOpacity>
+                  </View>
+                ))}
+              </ScrollView>
+            </View>
+          )}
 
           {/* Ratings & Reviews */}
           <TouchableOpacity style={styles.reviewsSection}>
@@ -396,7 +418,7 @@ export const ItemDetailsScreen = ({ route }) => {
       {/* Bottom Section */}
       <View style={styles.bottomSection}>
         <Text style={styles.totalText}>Total: {formatPrice(item.price * quantity)}</Text>
-        <TouchableOpacity style={styles.addToCartButton} onPress={addToCart}>
+        <TouchableOpacity style={styles.addToCartButton} onPress={handleAddToCart}>
           <Ionicons name="cart" size={20} color="#fff" style={{ marginRight: 8 }} />
           <Text style={styles.addToCartText}>Add to Cart</Text>
         </TouchableOpacity>
@@ -405,10 +427,71 @@ export const ItemDetailsScreen = ({ route }) => {
   );
 };
 
+// Update the header cart icon to use the cart context
+const CartIcon = () => {
+  const { cartCount } = useCart();
+  const router = useRouter();
+
+  return (
+    <TouchableOpacity onPress={() => router.push('/cart')}>
+      <Ionicons name="cart-outline" size={24} color="#000" />
+      {cartCount > 0 && (
+        <View style={styles.cartBadge}>
+          <Text style={styles.cartBadgeText}>{cartCount}</Text>
+        </View>
+      )}
+    </TouchableOpacity>
+  );
+};
+
+// Update the header to use the CartIcon component
+const Header = ({ title, showBack = true }) => {
+  const router = useRouter();
+  
+  return (
+    <View style={styles.header}>
+      <View style={styles.headerLeft}>
+        {showBack && (
+          <TouchableOpacity onPress={() => router.back()}>
+            <Ionicons name="arrow-back" size={24} color="#000" />
+          </TouchableOpacity>
+        )}
+        <Text style={styles.headerTitle}>{title}</Text>
+      </View>
+      <CartIcon />
+    </View>
+  );
+};
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
+  },
+  contentContainer: {
+    paddingBottom: 20,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingText: {
+    marginTop: 16,
+    fontSize: 16,
+    color: '#666',
+  },
+  emptyContainer: {
+    flex: 1,
+    width: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 40,
+  },
+  emptyText: {
+    fontSize: 16,
+    color: '#666',
+    textAlign: 'center',
   },
   header: {
     flexDirection: 'row',
@@ -535,23 +618,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     color: '#000',
-  },
-  bottomNav: {
-    flexDirection: 'row',
-    backgroundColor: '#fff',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderTopWidth: 1,
-    borderTopColor: '#f0f0f0',
-  },
-  navItem: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  navText: {
-    fontSize: 12,
-    color: '#999',
-    marginTop: 4,
   },
   // Details Screen Styles
   detailsContainer: {

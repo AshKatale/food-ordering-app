@@ -1,16 +1,16 @@
-import { useNavigation } from '@react-navigation/native';
+import { useLocalSearchParams } from 'expo-router';
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { MenuListScreen } from '../../components/MenuComponents';
 
 export default function Menu() {
-  const navigation = useNavigation();
+  const { category } = useLocalSearchParams();
   
   return (
     <View style={styles.container}>
-        <MenuListScreen navigation={navigation} />
+      <MenuListScreen initialCategory={category} />
     </View>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
@@ -18,4 +18,4 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff'
   }
-})
+});

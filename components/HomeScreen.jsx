@@ -2,19 +2,19 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React from 'react';
 import {
-    Dimensions,
-    Image,
-    SafeAreaView,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View
+  Dimensions,
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const { width } = Dimensions.get('window');
 
-export default function HomeScreen() {
+export const HomeScreen = () => {
   const router = useRouter();
 
   const featuredItems = [
@@ -67,32 +67,54 @@ export default function HomeScreen() {
     ));
   };
 
+  const navigateToCategory = (category) => {
+    router.push({
+      pathname: '/menu',
+      params: { category }
+    });
+  };
+
+  const renderCategoryCard = (category, image, count) => (
+    <TouchableOpacity 
+      style={styles.categoryCard}
+      onPress={() => navigateToCategory(category)}
+    >
+      <Image source={{ uri: image }} style={styles.categoryImage} />
+      <View style={styles.categoryOverlay}>
+        <Text style={styles.categoryName}>{category}</Text>
+        <Text style={styles.categoryCount}>{count} items</Text>
+      </View>
+    </TouchableOpacity>
+  );
+
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top']}>
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.headerLeft}>
           <Text style={styles.headerTitle}>Foodio</Text>
         </View>
+        <TouchableOpacity 
+          style={styles.cartButton}
+          onPress={() => router.push('/(tabs)/cart')}
+        >
+          <Ionicons name="cart-outline" size={24} color="#FF6B35" />
+        </TouchableOpacity>
       </View>
 
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+      <ScrollView 
+        style={styles.content} 
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.contentContainer}
+      >
         {/* Categories */}
-        <View style={styles.categoriesContainer}>
+        <View style={styles.categoriesSection}>
           <Text style={styles.sectionTitle}>Categories</Text>
           <View style={styles.categoriesGrid}>
-            {categories.map((category) => (
-              <TouchableOpacity
-                key={category.id}
-                style={styles.categoryItem}
-                onPress={() => router.push('/menu')}
-              >
-                <View style={styles.categoryIcon}>
-                  <Ionicons name={category.icon} size={24} color="#FF6B35" />
-                </View>
-                <Text style={styles.categoryName}>{category.name}</Text>
-              </TouchableOpacity>
-            ))}
+            {renderCategoryCard('Meals', 'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=300', 12)}
+            {renderCategoryCard('Sides', 'https://images.unsplash.com/photo-1576866209836-0fbf94f492f9?w=300', 2)}
+            {renderCategoryCard('Snacks', 'https://images.unsplash.com/photo-1604908177522-f6f032a2d7f1?w=300', 4)}
+            {renderCategoryCard('Drinks', 'https://images.unsplash.com/photo-1579033460371-c0adf99dd412?w=300', 6)}
           </View>
         </View>
 
@@ -156,7 +178,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
-},
+  },
+  contentContainer: {
+    paddingBottom: 20,
+  },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -173,15 +198,11 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontFamily: 'outfit-bold',
     color: '#FF6B35',
   },
-  headerRight: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  headerIcon: {
-    marginLeft: 16,
+  cartButton: {
+    padding: 8,
   },
   content: {
     flex: 1,
@@ -200,7 +221,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#666',
   },
-  categoriesContainer: {
+  categoriesSection: {
     padding: 16,
   },
   sectionTitle: {
@@ -214,7 +235,7 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     justifyContent: 'space-between',
   },
-  categoryItem: {
+  categoryCard: {
     width: (width - 48) / 2,
     backgroundColor: '#fff',
     borderRadius: 12,
@@ -230,19 +251,31 @@ const styles = StyleSheet.create({
     shadowRadius: 3.84,
     elevation: 5,
   },
-  categoryIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: '#FFF5F2',
+  categoryImage: {
+    width: '100%',
+    height: 160,
+    borderTopLeftRadius: 12,
+    borderTopRightRadius: 12,
+  },
+  categoryOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 8,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    borderRadius: 12,
   },
   categoryName: {
     fontSize: 16,
     fontWeight: '500',
-    color: '#333',
+    color: '#fff',
+  },
+  categoryCount: {
+    fontSize: 12,
+    color: '#fff',
   },
   featuredContainer: {
     padding: 16,
