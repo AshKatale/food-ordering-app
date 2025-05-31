@@ -51,8 +51,8 @@ A comprehensive food ordering mobile application built with React Native(Expo) a
 
 1. Clone the repository
 ```bash
-git clone https://github.com/AshKatale/food-app.git
-cd food-app
+git clone https://github.com/AshKatale/food-ordering-app.git
+cd food-ordering-app
 ```
 
 2. Install dependencies
