@@ -2,7 +2,7 @@
 
 A comprehensive food ordering mobile application built with React Native(Expo) and Firebase, featuring a modern UI/UX design and real-time data management.
 
-[Download APK](https://github.com/AshKatale/travel-app/releases/latest](https://expo.dev/accounts/ashitosh1409/projects/food-app/builds/829542d3-f593-4c1d-8128-8cf065ef805c)
+[Download APK](https://expo.dev/accounts/ashitosh1409/projects/food-app/builds/829542d3-f593-4c1d-8128-8cf065ef805c)
 
 ## Features
 
